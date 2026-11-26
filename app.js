@@ -256,14 +256,24 @@ function syncWithServer(hasLocalCache, preserveScroll) {
   if (isSyncing || OFFLINE_SNAPSHOT) return;
   isSyncing = true;
   const status = document.getElementById('syncStatus');
+  status.style.color = '#1a73e8';
   status.textContent = 'Синхронизация...';
-  const onLoaded = data => { isSyncing = false; try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) {} applyData(data, preserveScroll); status.textContent = ''; };
+  const onLoaded = data => {
+    isSyncing = false;
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) {}
+    applyData(data, preserveScroll);
+    status.style.color = '#1a73e8';
+    status.textContent = 'В сети';
+  };
   const onLoadError = () => {
     isSyncing = false;
-    if (hasLocalCache) { status.textContent = 'Офлайн-режим'; setTimeout(() => { if (status.textContent === 'Офлайн-режим') status.textContent = ''; }, 2500); }
-    else { status.textContent = 'Нет сети'; }
+    status.style.color = '#d93025';
+    status.textContent = 'Нет сети\nГрафик не обновляется';
   };
-  fetch(`${API_URL}?api=1&t=${Date.now()}`, { redirect: 'follow' }).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(onLoaded).catch(onLoadError);
+  fetch(`${API_URL}?api=1&t=${Date.now()}`, { redirect: 'follow' })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(onLoaded)
+    .catch(onLoadError);
 }
 
 function loadTables() {
@@ -273,6 +283,10 @@ function loadTables() {
   try { const raw = localStorage.getItem(CACHE_KEY); if (raw) { applyData(JSON.parse(raw), false); hasLocalCache = true; } } catch (e) {}
   syncWithServer(hasLocalCache, hasLocalCache);
   window.addEventListener('online', () => { syncWithServer(!!cachedData, true); });
+  window.addEventListener('offline', () => {
+    const status = document.getElementById('syncStatus');
+    if (status) { status.style.color = '#d93025'; status.textContent = 'Нет сети\nГрафик не обновляется'; }
+  });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && navigator.onLine) syncWithServer(!!cachedData, true); });
 }
 
@@ -285,3 +299,4 @@ function bootApp() {
 }
 
 if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', bootApp); else bootApp();
+
