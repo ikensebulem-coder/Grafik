@@ -28,13 +28,26 @@ function renderLastUpdated(stamp) {
 
 function updateEditToggleUI() {
   const btn = document.getElementById('editToggleBtn');
+  const group = document.getElementById('editControlGroup');
   if (!btn) return;
-  if (OFFLINE_SNAPSHOT || isForceReadOnly) { btn.style.display = 'none'; return; }
+  if (OFFLINE_SNAPSHOT || isForceReadOnly) {
+    if (group) group.style.display = 'none';
+    else btn.style.display = 'none';
+    return;
+  }
+  if (group) group.style.display = 'inline-flex';
   btn.style.display = 'inline-flex';
   const activeState = !isViewOnlyMode && isEditEnabled;
   btn.setAttribute('aria-checked', activeState ? 'true' : 'false');
-  if (activeState) btn.classList.add('active'); else btn.classList.remove('active');
+  if (activeState) {
+    btn.classList.add('active');
+    if (group) group.classList.add('active');
+  } else {
+    btn.classList.remove('active');
+    if (group) group.classList.remove('active');
+  }
 }
+
 
 function applyEditModeState(enabled) {
   isEditEnabled = enabled;
