@@ -1,4 +1,5 @@
-const API_URL = 'https://google.com';
+https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQ_yuy-ZkGDAen6VMEtJkOwI6OoGaTrhJ3D8mftur2Giopo5EVn0VMtBr_tj1OoAfDbzIVTpC6zODQZjxFrtUqf4cqTJA6wfgS7PI-QS1s1Cn5U4jN1deNAcm6mLPWGCdwYt8B8FzYiXUGGs7TX-joKPOMLcq27V4p-JY8unuHSRM2xpr4ehirjax2PE0_jUKMCt3pM-CMfERN322uDMeA13e_HENMaJbiwErDYukmzar8s1srcQVkJJLF6OS4PJzwp-rXU4Rl0kRD8bQgRPKX72-6xQTgok2qIE9b8&lib=MpGpJWgb0JGg1631Pu2YYKeeBqdl3U4co
+
 const isApkApp = /wv\)|Median|GoNative|WebIntoApp/i.test(navigator.userAgent) || window.location.protocol === 'file:';
 const EDITOR_KEY_STORAGE = 'grafik_editor_secret_v2', EXPECTED_SECRET = '8482', CACHE_KEY = 'gas_dual_tables_cache_v66', OFFLINE_SNAPSHOT = null;
 let editorSecret = '';
