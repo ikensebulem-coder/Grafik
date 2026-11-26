@@ -62,8 +62,10 @@
     body.apk-mode .switch-thumb { width: 14px; height: 14px; }
     body.apk-mode .edit-switch-wrap.active .switch-thumb { transform: translateX(16px); }
     body.apk-mode .switch-label { font-size: 12.5px; }
+        body.apk-mode { padding-top: 56px !important; }
     @media (max-width: 600px) {
-      body { padding: 2px; padding-top: calc(env(safe-area-inset-top, 24px) + 8px); background: #ffffff; }
+      body { padding: 2px; padding-top: calc(env(safe-area-inset-top, 44px) + 12px); background: #ffffff; }
+      body.apk-mode { padding-top: 56px !important; }
       .viewer-hint { margin: 4px; border-radius: 4px; }
       .header-bar { padding: 4px 4px; margin-bottom: 4px; gap: 6px; }
       .header-right { gap: 10px; }
@@ -79,9 +81,12 @@
       body.apk-mode .switch-label { font-size: 11.5px; }
       .section { border: none; border-radius: 0; padding: 2px 0; margin-bottom: 10px; }
       .section-header { padding: 0 4px; margin-bottom: 4px; }
-      td:first-child, th:first-child { width: 82px; min-width: 82px; max-width: 82px; padding: 4px 2px; }
+      th, td { width: 88px; min-width: 88px; max-width: 88px; padding: 5px 2px; }
+      td:first-child, th:first-child { width: 76px; min-width: 76px; max-width: 76px; padding: 4px 2px; }
     }
   </style>
+
+
 </head>
 <body>
   <div id="viewerHint" class="viewer-hint">Чтобы таблицы прокручивались синхронно, откройте этот файл через любой браузер.</div>
