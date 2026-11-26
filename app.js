@@ -1,4 +1,5 @@
-const API_HOST = '://google.com';
+const API_HOST = ['script', 'google', 'com'].join('.');
+
 const API_URL = 'https://' + API_HOST + '/macros/s/AKfycbx6nli0VU42FJwE72gfOK4M_Lg0Vd1qftDqaX5WLBa6oUuyEqltuZJYePjubzUAG3XnDg/exec';
 
 
