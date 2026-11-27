@@ -240,7 +240,7 @@ function saveCell(tableIndex, rowIndex, colIndex, value, cellElement) {
     status.style.color = '#d93025';
     status.textContent = 'Нет сети\nГрафик не обновляется';
   };
-); };
+
   fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateCell', secret: editorSecret, tableIndex: tableIndex, rowIndex: rowIndex, colIndex: colIndex, value: value }) }).then(() => onSaved(null)).catch(onError);
 }
 
