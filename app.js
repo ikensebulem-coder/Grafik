@@ -103,7 +103,8 @@ function renderTable(tableId, rows, tableIndex) {
   
     for (let i = 0; i < mappedRows.length - 1; i++) {
       const currLabel = String(mappedRows[i].row.at(0) || '').trim().toLowerCase(), nextLabel = String(mappedRows[i + 1].row.at(0) || '').trim().toLowerCase();
-      if ((currLabel.startsWith('расп') && nextLabel.startsWith('закл')) || (currLabel.startsWith('закл') && nextLabel.startsWith('расп'))) {
+         if (currLabel.startsWith('расп') && nextLabel.startsWith('закл')) {
+
         const temp = mappedRows[i]; mappedRows[i] = mappedRows[i + 1]; mappedRows[i + 1] = temp; i++;
       }
     }
