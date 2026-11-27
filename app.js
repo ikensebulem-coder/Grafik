@@ -100,14 +100,14 @@ function renderTable(tableId, rows, tableIndex) {
   const recentEdits = (cachedData && cachedData.recentEdits) ? cachedData.recentEdits : {};
   const canEdit = !isViewOnlyMode && !isForceReadOnly && !OFFLINE_SNAPSHOT && isEditEnabled;
   const headerRow = rows.at(0) || [], nowMs = Date.now(), mappedRows = rows.map((row, idx) => ({ row, origIdx: idx }));
-  if (tableIndex === 1) {
+  
     for (let i = 0; i < mappedRows.length - 1; i++) {
       const currLabel = String(mappedRows[i].row.at(0) || '').trim().toLowerCase(), nextLabel = String(mappedRows[i + 1].row.at(0) || '').trim().toLowerCase();
       if ((currLabel.startsWith('расп') && nextLabel.startsWith('закл')) || (currLabel.startsWith('закл') && nextLabel.startsWith('расп'))) {
         const temp = mappedRows[i]; mappedRows[i] = mappedRows[i + 1]; mappedRows[i + 1] = temp; i++;
       }
     }
-  }
+  
   mappedRows.forEach(({ row, origIdx }, visualIdx) => {
     const tr = document.createElement('tr');
     const isSpacer = (tableIndex === 1 && origIdx === 15), isSubHeader = (tableIndex === 1 && origIdx === 16);
