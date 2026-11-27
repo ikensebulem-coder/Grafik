@@ -1,9 +1,5 @@
 const API_HOST = ['script', 'google', 'com'].join('.');
-
 const API_URL = 'https://' + API_HOST + '/macros/s/AKfycbx6nli0VU42FJwE72gfOK4M_Lg0Vd1qftDqaX5WLBa6oUuyEqltuZJYePjubzUAG3XnDg/exec';
-
-
-
 
 const isApkApp = /wv\)|Median|GoNative|WebIntoApp/i.test(navigator.userAgent) || window.location.protocol === 'file:';
 const EDITOR_KEY_STORAGE = 'grafik_editor_secret_v2', EXPECTED_SECRET = '8482', CACHE_KEY = 'gas_dual_tables_cache_v66', OFFLINE_SNAPSHOT = null;
@@ -26,7 +22,6 @@ function renderLastUpdated(stamp) {
   if (noteEl) noteEl.textContent = stamp ? 'Друзья, проверьте свои пункты. Изменённые ячейки выделены зелёным цветом.' : '';
 }
 
-
 function updateEditToggleUI() {
   const btn = document.getElementById('editToggleBtn');
   const group = document.getElementById('editControlGroup');
@@ -48,7 +43,6 @@ function updateEditToggleUI() {
     if (group) group.classList.remove('active');
   }
 }
-
 
 function applyEditModeState(enabled) {
   isEditEnabled = enabled;
@@ -100,25 +94,14 @@ function renderTable(tableId, rows, tableIndex) {
   const recentEdits = (cachedData && cachedData.recentEdits) ? cachedData.recentEdits : {};
   const canEdit = !isViewOnlyMode && !isForceReadOnly && !OFFLINE_SNAPSHOT && isEditEnabled;
   const headerRow = rows.at(0) || [], nowMs = Date.now(), mappedRows = rows.map((row, idx) => ({ row, origIdx: idx }));
-  
-        const targetOrder = ['чтец', 'закл', 'расп'];
-  const presentItems = targetOrder
-    .map(key => ({
-      key,
-      idx: mappedRows.findIndex(item => String(item.row.at(0) || '').trim().toLowerCase().includes(key))
-    }))
-    .filter(entry => entry.idx !== -1);
-
-  if (presentItems.length >= 2) {
-    const sortedSlots = presentItems.map(entry => entry.idx).sort((a, b) => a - b);
-    const orderedRows = presentItems.map(entry => mappedRows[entry.idx]);
-    sortedSlots.forEach((slotIdx, i) => {
-      mappedRows[slotIdx] = orderedRows[i];
-    });
+  if (tableIndex === 1) {
+    for (let i = 0; i < mappedRows.length - 1; i++) {
+      const currLabel = String(mappedRows[i].row.at(0) || '').trim().toLowerCase(), nextLabel = String(mappedRows[i + 1].row.at(0) || '').trim().toLowerCase();
+      if ((currLabel.startsWith('расп') && nextLabel.startsWith('закл')) || (currLabel.startsWith('закл') && nextLabel.startsWith('расп'))) {
+        const temp = mappedRows[i]; mappedRows[i] = mappedRows[i + 1]; mappedRows[i + 1] = temp; i++;
+      }
+    }
   }
-
-
-  
   mappedRows.forEach(({ row, origIdx }, visualIdx) => {
     const tr = document.createElement('tr');
     const isSpacer = (tableIndex === 1 && origIdx === 15), isSubHeader = (tableIndex === 1 && origIdx === 16);
@@ -229,7 +212,7 @@ function saveCell(tableIndex, rowIndex, colIndex, value, cellElement) {
       try { localStorage.setItem(CACHE_KEY, JSON.stringify(cachedData)); } catch (e) {}
     }
   }
-    const onSaved = res => {
+  const onSaved = res => {
     const finalStamp = (res && res.stamp) ? res.stamp : localStamp;
     renderLastUpdated(finalStamp);
     if (cachedData) { cachedData.lastUpdated = finalStamp; if (res && res.recentEdits) cachedData.recentEdits = res.recentEdits; try { localStorage.setItem(CACHE_KEY, JSON.stringify(cachedData)); } catch (e) {} }
@@ -254,7 +237,6 @@ function saveCell(tableIndex, rowIndex, colIndex, value, cellElement) {
 
   fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateCell', secret: editorSecret, tableIndex: tableIndex, rowIndex: rowIndex, colIndex: colIndex, value: value }) }).then(() => onSaved(null)).catch(onError);
 }
-
 function applyData(data, preserveScroll) {
   const s1Left = preserveScroll ? document.getElementById('scroll1').scrollLeft : 0, s2Left = preserveScroll ? document.getElementById('scroll2').scrollLeft : 0;
   cachedData = data;
@@ -294,6 +276,11 @@ function downloadOfflineFile() {
 
 function syncWithServer(hasLocalCache, preserveScroll) {
   if (isSyncing || OFFLINE_SNAPSHOT) return;
+  if (!navigator.onLine) {
+    const status = document.getElementById('syncStatus');
+    if (status) { status.style.color = '#d93025'; status.textContent = 'Нет сети\nГрафик не обновляется'; }
+    return;
+  }
   isSyncing = true;
   const status = document.getElementById('syncStatus');
   status.style.color = '#1a73e8';
@@ -327,7 +314,15 @@ function loadTables() {
     const status = document.getElementById('syncStatus');
     if (status) { status.style.color = '#d93025'; status.textContent = 'Нет сети\nГрафик не обновляется'; }
   });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && navigator.onLine) syncWithServer(!!cachedData, true); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      if (navigator.onLine) syncWithServer(!!cachedData, true);
+      else {
+        const status = document.getElementById('syncStatus');
+        if (status) { status.style.color = '#d93025'; status.textContent = 'Нет сети\nГрафик не обновляется'; }
+      }
+    }
+  });
 }
 
 function bootApp() {
@@ -340,3 +335,8 @@ function bootApp() {
 
 if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', bootApp); else bootApp();
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
