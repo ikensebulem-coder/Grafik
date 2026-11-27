@@ -101,17 +101,22 @@ function renderTable(tableId, rows, tableIndex) {
   const canEdit = !isViewOnlyMode && !isForceReadOnly && !OFFLINE_SNAPSHOT && isEditEnabled;
   const headerRow = rows.at(0) || [], nowMs = Date.now(), mappedRows = rows.map((row, idx) => ({ row, origIdx: idx }));
   
-      const targetOrder = ['чтец', 'закл', 'расп'];
-  const foundIndices = targetOrder.map(prefix =>
-    mappedRows.findIndex(item => String(item.row.at(0) || '').trim().toLowerCase().startsWith(prefix))
-  );
-  if (foundIndices.every(idx => idx !== -1)) {
-    const sortedSlots = [...foundIndices].sort((a, b) => a - b);
-    const orderedItems = foundIndices.map(idx => mappedRows[idx]);
+        const targetOrder = ['чтец', 'закл', 'расп'];
+  const presentItems = targetOrder
+    .map(key => ({
+      key,
+      idx: mappedRows.findIndex(item => String(item.row.at(0) || '').trim().toLowerCase().includes(key))
+    }))
+    .filter(entry => entry.idx !== -1);
+
+  if (presentItems.length >= 2) {
+    const sortedSlots = presentItems.map(entry => entry.idx).sort((a, b) => a - b);
+    const orderedRows = presentItems.map(entry => mappedRows[entry.idx]);
     sortedSlots.forEach((slotIdx, i) => {
-      mappedRows[slotIdx] = orderedItems[i];
+      mappedRows[slotIdx] = orderedRows[i];
     });
   }
+
 
   
   mappedRows.forEach(({ row, origIdx }, visualIdx) => {
