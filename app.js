@@ -22,9 +22,10 @@ function formatClientStamp() {
 
 function renderLastUpdated(stamp) {
   const dateEl = document.getElementById('lastUpdatedDate'), noteEl = document.getElementById('lastUpdatedNote');
-  if (dateEl) dateEl.textContent = stamp ? `Обновлено: ${stamp}` : '';
+  if (dateEl) dateEl.textContent = '';
   if (noteEl) noteEl.textContent = stamp ? 'Друзья, проверьте свои пункты. Изменённые ячейки выделены зелёным цветом.' : '';
 }
+
 
 function updateEditToggleUI() {
   const btn = document.getElementById('editToggleBtn');
@@ -217,14 +218,29 @@ function saveCell(tableIndex, rowIndex, colIndex, value, cellElement) {
       try { localStorage.setItem(CACHE_KEY, JSON.stringify(cachedData)); } catch (e) {}
     }
   }
-  const onSaved = res => {
+    const onSaved = res => {
     const finalStamp = (res && res.stamp) ? res.stamp : localStamp;
     renderLastUpdated(finalStamp);
     if (cachedData) { cachedData.lastUpdated = finalStamp; if (res && res.recentEdits) cachedData.recentEdits = res.recentEdits; try { localStorage.setItem(CACHE_KEY, JSON.stringify(cachedData)); } catch (e) {} }
+    status.style.color = '#1a73e8';
     status.textContent = 'Сохранено';
-    setTimeout(() => { if (status.textContent === 'Сохранено') status.textContent = ''; }, 1500);
+    setTimeout(() => {
+      if (status.textContent === 'Сохранено') {
+        if (navigator.onLine) {
+          status.style.color = '#1a73e8';
+          status.textContent = 'В сети';
+        } else {
+          status.style.color = '#d93025';
+          status.textContent = 'Нет сети\nГрафик не обновляется';
+        }
+      }
+    }, 1500);
   };
-  const onError = () => { status.textContent = 'Нет сети'; setTimeout(() => { if (status.textContent === 'Нет сети') status.textContent = ''; }, 2500); };
+  const onError = () => {
+    status.style.color = '#d93025';
+    status.textContent = 'Нет сети\nГрафик не обновляется';
+  };
+); };
   fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateCell', secret: editorSecret, tableIndex: tableIndex, rowIndex: rowIndex, colIndex: colIndex, value: value }) }).then(() => onSaved(null)).catch(onError);
 }
 
