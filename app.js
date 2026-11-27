@@ -101,13 +101,18 @@ function renderTable(tableId, rows, tableIndex) {
   const canEdit = !isViewOnlyMode && !isForceReadOnly && !OFFLINE_SNAPSHOT && isEditEnabled;
   const headerRow = rows.at(0) || [], nowMs = Date.now(), mappedRows = rows.map((row, idx) => ({ row, origIdx: idx }));
   
-    for (let i = 0; i < mappedRows.length - 1; i++) {
-      const currLabel = String(mappedRows[i].row.at(0) || '').trim().toLowerCase(), nextLabel = String(mappedRows[i + 1].row.at(0) || '').trim().toLowerCase();
-         if (currLabel.startsWith('расп') && nextLabel.startsWith('закл')) {
+      const targetOrder = ['чтец', 'закл', 'расп'];
+  const foundIndices = targetOrder.map(prefix =>
+    mappedRows.findIndex(item => String(item.row.at(0) || '').trim().toLowerCase().startsWith(prefix))
+  );
+  if (foundIndices.every(idx => idx !== -1)) {
+    const sortedSlots = [...foundIndices].sort((a, b) => a - b);
+    const orderedItems = foundIndices.map(idx => mappedRows[idx]);
+    sortedSlots.forEach((slotIdx, i) => {
+      mappedRows[slotIdx] = orderedItems[i];
+    });
+  }
 
-        const temp = mappedRows[i]; mappedRows[i] = mappedRows[i + 1]; mappedRows[i + 1] = temp; i++;
-      }
-    }
   
   mappedRows.forEach(({ row, origIdx }, visualIdx) => {
     const tr = document.createElement('tr');
