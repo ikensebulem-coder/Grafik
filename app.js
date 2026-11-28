@@ -94,14 +94,33 @@ function renderTable(tableId, rows, tableIndex) {
   const recentEdits = (cachedData && cachedData.recentEdits) ? cachedData.recentEdits : {};
   const canEdit = !isViewOnlyMode && !isForceReadOnly && !OFFLINE_SNAPSHOT && isEditEnabled;
   const headerRow = rows.at(0) || [], nowMs = Date.now(), mappedRows = rows.map((row, idx) => ({ row, origIdx: idx }));
-  if (tableIndex === 1) {
-    for (let i = 0; i < mappedRows.length - 1; i++) {
-      const currLabel = String(mappedRows[i].row.at(0) || '').trim().toLowerCase(), nextLabel = String(mappedRows[i + 1].row.at(0) || '').trim().toLowerCase();
-      if ((currLabel.startsWith('расп') && nextLabel.startsWith('закл')) || (currLabel.startsWith('закл') && nextLabel.startsWith('расп'))) {
-        const temp = mappedRows[i]; mappedRows[i] = mappedRows[i + 1]; mappedRows[i + 1] = temp; i++;
-      }
+    const swapRaspAndZakl = (startIdx, endIdx) => {
+    let raspIdx = -1;
+    let zaklIdx = -1;
+    for (let i = startIdx; i < endIdx; i++) {
+      const label = String(mappedRows[i].row.at(0) || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      if (raspIdx === -1 && label.includes('расп')) raspIdx = i;
+      if (zaklIdx === -1 && label.includes('закл')) zaklIdx = i;
     }
+    if (raspIdx !== -1 && zaklIdx !== -1 && raspIdx < zaklIdx) {
+      const temp = mappedRows[raspIdx];
+      mappedRows[raspIdx] = mappedRows[zaklIdx];
+      mappedRows[zaklIdx] = temp;
+    }
+  };
+
+  if (tableIndex === 1) {
+    const splitIdx = mappedRows.findIndex(item => item.origIdx === 15);
+    if (splitIdx !== -1) {
+      swapRaspAndZakl(1, splitIdx);
+      swapRaspAndZakl(splitIdx + 1, mappedRows.length);
+    } else {
+      swapRaspAndZakl(1, mappedRows.length);
+    }
+  } else {
+    swapRaspAndZakl(1, mappedRows.length);
   }
+
   mappedRows.forEach(({ row, origIdx }, visualIdx) => {
     const tr = document.createElement('tr');
     const isSpacer = (tableIndex === 1 && origIdx === 15), isSubHeader = (tableIndex === 1 && origIdx === 16);
