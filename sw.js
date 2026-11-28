@@ -1,8 +1,8 @@
-const CACHE_NAME = 'grafik-dual-offline-v2';
+const CACHE_NAME = 'grafik-dual-offline-v3';
 const ASSETS = [
   './',
   './index.html',
-  './app.js?v=8'
+  './app.js?v=9'
 ];
 
 self.addEventListener('install', event => {
